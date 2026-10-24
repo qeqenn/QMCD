@@ -3,6 +3,7 @@ using QuickMinecraftDownloader.Services;
 using System.Text.Json;
 using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace QuickMinecraftDownloader
 {
@@ -75,13 +76,6 @@ namespace QuickMinecraftDownloader
                 // 将路径显示在文本框
                 输出文件夹.Text = selectedPath;
             }
-            //输出至JSON
-            var item = new MemoryItem
-            {
-                Name = "LastFolder",
-                Value = dialog.SelectedPath
-            };
-            _db.Add(item);
 
         }
 
@@ -94,7 +88,7 @@ namespace QuickMinecraftDownloader
             var drives = DriveScanner.GetAllDrives();
             if (drives.Count == 0)
             {
-                MessageBox.Show("没有可扫描的磁盘。", "警告");
+                MessageBox.Show("没有可扫描的磁盘。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -127,7 +121,7 @@ namespace QuickMinecraftDownloader
                 输出文件夹.Items.Clear();
                 if (allPaths.Count == 0)
                 {
-                    MessageBox.Show("没有找到MC游戏文件夹。", "提示");
+                    MessageBox.Show("没有找到MC游戏文件夹。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
@@ -139,7 +133,7 @@ namespace QuickMinecraftDownloader
             }
             catch (Exception ex)
             {
-                MessageBox.Show("扫描出错：" + ex.Message, "错误");
+                MessageBox.Show("扫描出错：" + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -166,15 +160,15 @@ namespace QuickMinecraftDownloader
             }
             catch (HttpRequestException ex)
             {
-                MessageBox.Show($"网络请求失败：{ex.Message}", "错误");
+                MessageBox.Show($"网络请求失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (JsonException ex)
             {
-                MessageBox.Show($"JSON 解析失败：{ex.Message}", "错误");
+                MessageBox.Show($"JSON 解析失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"刷新出错：{ex.Message}", "错误");
+                MessageBox.Show($"刷新出错：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -302,7 +296,7 @@ namespace QuickMinecraftDownloader
             if (GameVers.SelectedItem == null ||
                 GameVers.SelectedItem.ToString() == "未找到匹配版本")
             {
-                MessageBox.Show("请先选择游戏版本。", "提示");
+                MessageBox.Show("请先选择游戏版本。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             string versionId = GameVers.SelectedItem.ToString();
@@ -310,14 +304,14 @@ namespace QuickMinecraftDownloader
             string selectedFolder = 输出文件夹.Text?.Trim();
             if (string.IsNullOrEmpty(selectedFolder))
             {
-                MessageBox.Show("请先选择输出文件夹。", "提示");
+                MessageBox.Show("请先选择输出文件夹。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             var entry = _cachedVersions?.FirstOrDefault(v => v.Id == versionId);
             if (entry == null)
             {
-                MessageBox.Show("未找到版本信息，请先点击「刷新游戏版本」。", "提示");
+                MessageBox.Show("未找到版本信息，请先点击「刷新游戏版本」。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -355,6 +349,30 @@ namespace QuickMinecraftDownloader
             {
                 开始安装.Enabled = true;
                 Cursor = Cursors.Default;
+
+                // 保存最近使用的文件夹到数据库
+                string folderPath = 输出文件夹.Text?.Trim();
+                if (!string.IsNullOrEmpty(folderPath))
+                {
+                    var existing = _db.Query(x => x.Name == "LastFolder" && x.Value == folderPath)
+                                      .FirstOrDefault();
+
+                    if (existing != null)
+                    {
+                        // 已存在：只更新时间，让它排到最前
+                        existing.CreatedAt = DateTime.Now;
+                        _db.Save(existing);
+                    }
+                    else
+                    {
+                        _db.Add(new MemoryItem
+                        {
+                            Name = "LastFolder",
+                            Value = folderPath
+                        });
+                    }
+                }
+
             }
         }
 
@@ -430,6 +448,24 @@ namespace QuickMinecraftDownloader
             }
 
             report(100, $"{entry.Id} 下载完成");
+        }
+
+        private void 历史记录ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("确定清除所有历史记录？", "确认",
+        MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                return;
+
+            _db.Clear();   // 清空所有记录，文件保留，变成 []
+
+            // 刷新所有相关控件
+            输出文件夹.DataSource = null;
+            输出文件夹.Items.Clear();
+        }
+
+        private void 缓存ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("暂无缓存","提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

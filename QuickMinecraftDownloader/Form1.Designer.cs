@@ -32,6 +32,10 @@
             menuStrip1 = new MenuStrip();
             文件ToolStripMenuItem = new ToolStripMenuItem();
             退出ToolStripMenuItem = new ToolStripMenuItem();
+            选项ToolStripMenuItem = new ToolStripMenuItem();
+            清除ToolStripMenuItem = new ToolStripMenuItem();
+            历史记录ToolStripMenuItem = new ToolStripMenuItem();
+            缓存ToolStripMenuItem = new ToolStripMenuItem();
             label1 = new Label();
             输出文件夹 = new ComboBox();
             选择文件夹 = new Button();
@@ -62,7 +66,7 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = SystemColors.Control;
-            menuStrip1.Items.AddRange(new ToolStripItem[] { 文件ToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { 文件ToolStripMenuItem, 选项ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(800, 25);
@@ -82,6 +86,34 @@
             退出ToolStripMenuItem.Size = new Size(100, 22);
             退出ToolStripMenuItem.Text = "退出";
             退出ToolStripMenuItem.Click += 退出ToolStripMenuItem_Click;
+            // 
+            // 选项ToolStripMenuItem
+            // 
+            选项ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 清除ToolStripMenuItem });
+            选项ToolStripMenuItem.Name = "选项ToolStripMenuItem";
+            选项ToolStripMenuItem.Size = new Size(44, 21);
+            选项ToolStripMenuItem.Text = "选项";
+            // 
+            // 清除ToolStripMenuItem
+            // 
+            清除ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 历史记录ToolStripMenuItem, 缓存ToolStripMenuItem });
+            清除ToolStripMenuItem.Name = "清除ToolStripMenuItem";
+            清除ToolStripMenuItem.Size = new Size(180, 22);
+            清除ToolStripMenuItem.Text = "清除";
+            // 
+            // 历史记录ToolStripMenuItem
+            // 
+            历史记录ToolStripMenuItem.Name = "历史记录ToolStripMenuItem";
+            历史记录ToolStripMenuItem.Size = new Size(180, 22);
+            历史记录ToolStripMenuItem.Text = "历史记录";
+            历史记录ToolStripMenuItem.Click += 历史记录ToolStripMenuItem_Click;
+            // 
+            // 缓存ToolStripMenuItem
+            // 
+            缓存ToolStripMenuItem.Name = "缓存ToolStripMenuItem";
+            缓存ToolStripMenuItem.Size = new Size(180, 22);
+            缓存ToolStripMenuItem.Text = "缓存";
+            缓存ToolStripMenuItem.Click += 缓存ToolStripMenuItem_Click;
             // 
             // label1
             // 
@@ -280,7 +312,8 @@
             // 
             // 扫描文件夹
             // 
-            扫描文件夹.Location = new Point(719, 31);
+            扫描文件夹.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            扫描文件夹.Location = new Point(719, 30);
             扫描文件夹.Name = "扫描文件夹";
             扫描文件夹.Size = new Size(75, 23);
             扫描文件夹.TabIndex = 12;
@@ -366,5 +399,9 @@
         private FolderBrowserDialog folderBrowserDialog1;
         private RadioButton 远古版;
         private ProgressBar 安装进度;
+        private ToolStripMenuItem 选项ToolStripMenuItem;
+        private ToolStripMenuItem 清除ToolStripMenuItem;
+        private ToolStripMenuItem 历史记录ToolStripMenuItem;
+        private ToolStripMenuItem 缓存ToolStripMenuItem;
     }
 }
