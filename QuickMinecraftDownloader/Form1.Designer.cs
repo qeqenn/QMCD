@@ -36,6 +36,9 @@
             清除ToolStripMenuItem = new ToolStripMenuItem();
             历史记录ToolStripMenuItem = new ToolStripMenuItem();
             缓存ToolStripMenuItem = new ToolStripMenuItem();
+            安装ToolStripMenuItem = new ToolStripMenuItem();
+            java运行时ToolStripMenuItem = new ToolStripMenuItem();
+            整合包ToolStripMenuItem = new ToolStripMenuItem();
             label1 = new Label();
             输出文件夹 = new ComboBox();
             选择文件夹 = new Button();
@@ -58,6 +61,7 @@
             开始安装 = new Button();
             folderBrowserDialog1 = new FolderBrowserDialog();
             安装进度 = new ProgressBar();
+            加载器版本 = new ComboBox();
             menuStrip1.SuspendLayout();
             GameVerPanel.SuspendLayout();
             ModLoaderPanel.SuspendLayout();
@@ -66,7 +70,7 @@
             // menuStrip1
             // 
             menuStrip1.BackColor = SystemColors.Control;
-            menuStrip1.Items.AddRange(new ToolStripItem[] { 文件ToolStripMenuItem, 选项ToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { 文件ToolStripMenuItem, 选项ToolStripMenuItem, 安装ToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(800, 25);
@@ -98,22 +102,43 @@
             // 
             清除ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { 历史记录ToolStripMenuItem, 缓存ToolStripMenuItem });
             清除ToolStripMenuItem.Name = "清除ToolStripMenuItem";
-            清除ToolStripMenuItem.Size = new Size(180, 22);
+            清除ToolStripMenuItem.Size = new Size(100, 22);
             清除ToolStripMenuItem.Text = "清除";
             // 
             // 历史记录ToolStripMenuItem
             // 
             历史记录ToolStripMenuItem.Name = "历史记录ToolStripMenuItem";
-            历史记录ToolStripMenuItem.Size = new Size(180, 22);
+            历史记录ToolStripMenuItem.Size = new Size(124, 22);
             历史记录ToolStripMenuItem.Text = "历史记录";
             历史记录ToolStripMenuItem.Click += 历史记录ToolStripMenuItem_Click;
             // 
             // 缓存ToolStripMenuItem
             // 
             缓存ToolStripMenuItem.Name = "缓存ToolStripMenuItem";
-            缓存ToolStripMenuItem.Size = new Size(180, 22);
+            缓存ToolStripMenuItem.Size = new Size(124, 22);
             缓存ToolStripMenuItem.Text = "缓存";
             缓存ToolStripMenuItem.Click += 缓存ToolStripMenuItem_Click;
+            // 
+            // 安装ToolStripMenuItem
+            // 
+            安装ToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { java运行时ToolStripMenuItem, 整合包ToolStripMenuItem });
+            安装ToolStripMenuItem.Name = "安装ToolStripMenuItem";
+            安装ToolStripMenuItem.Size = new Size(44, 21);
+            安装ToolStripMenuItem.Text = "安装";
+            // 
+            // java运行时ToolStripMenuItem
+            // 
+            java运行时ToolStripMenuItem.Enabled = false;
+            java运行时ToolStripMenuItem.Name = "java运行时ToolStripMenuItem";
+            java运行时ToolStripMenuItem.Size = new Size(180, 22);
+            java运行时ToolStripMenuItem.Text = "Java运行时";
+            // 
+            // 整合包ToolStripMenuItem
+            // 
+            整合包ToolStripMenuItem.Enabled = false;
+            整合包ToolStripMenuItem.Name = "整合包ToolStripMenuItem";
+            整合包ToolStripMenuItem.Size = new Size(180, 22);
+            整合包ToolStripMenuItem.Text = "整合包";
             // 
             // label1
             // 
@@ -161,6 +186,7 @@
             GameVers.Name = "GameVers";
             GameVers.Size = new Size(156, 25);
             GameVers.TabIndex = 5;
+            GameVers.SelectedIndexChanged += GameVers_SelectedIndexChanged;
             // 
             // 正式版
             // 
@@ -263,6 +289,7 @@
             Optifine.TabStop = true;
             Optifine.Text = "Optifine";
             Optifine.UseVisualStyleBackColor = true;
+            Optifine.CheckedChanged += Optifine_CheckedChanged;
             // 
             // Fabric
             // 
@@ -274,6 +301,7 @@
             Fabric.TabIndex = 13;
             Fabric.Text = "Fabric";
             Fabric.UseVisualStyleBackColor = true;
+            Fabric.CheckedChanged += Fabric_CheckedChanged;
             // 
             // NeoForge
             // 
@@ -286,6 +314,7 @@
             NeoForge.TabStop = true;
             NeoForge.Text = "NeoForge";
             NeoForge.UseVisualStyleBackColor = true;
+            NeoForge.CheckedChanged += NeoForge_CheckedChanged;
             // 
             // Forge
             // 
@@ -298,6 +327,7 @@
             Forge.TabStop = true;
             Forge.Text = "Forge";
             Forge.UseVisualStyleBackColor = true;
+            Forge.CheckedChanged += Forge_CheckedChanged;
             // 
             // 无加载器
             // 
@@ -309,6 +339,7 @@
             无加载器.TabStop = true;
             无加载器.Text = "无";
             无加载器.UseVisualStyleBackColor = true;
+            无加载器.CheckedChanged += 无加载器_CheckedChanged;
             // 
             // 扫描文件夹
             // 
@@ -339,11 +370,22 @@
             安装进度.Size = new Size(800, 23);
             安装进度.TabIndex = 14;
             // 
+            // 加载器版本
+            // 
+            加载器版本.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            加载器版本.DropDownStyle = ComboBoxStyle.DropDownList;
+            加载器版本.FormattingEnabled = true;
+            加载器版本.Location = new Point(462, 100);
+            加载器版本.Name = "加载器版本";
+            加载器版本.Size = new Size(162, 25);
+            加载器版本.TabIndex = 15;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(加载器版本);
             Controls.Add(安装进度);
             Controls.Add(开始安装);
             Controls.Add(扫描文件夹);
@@ -403,5 +445,9 @@
         private ToolStripMenuItem 清除ToolStripMenuItem;
         private ToolStripMenuItem 历史记录ToolStripMenuItem;
         private ToolStripMenuItem 缓存ToolStripMenuItem;
+        private ComboBox 加载器版本;
+        private ToolStripMenuItem 安装ToolStripMenuItem;
+        private ToolStripMenuItem java运行时ToolStripMenuItem;
+        private ToolStripMenuItem 整合包ToolStripMenuItem;
     }
 }

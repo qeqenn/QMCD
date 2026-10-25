@@ -16,4 +16,8 @@
     <Content Include="res\QMCD.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Optifine.Installer" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>
