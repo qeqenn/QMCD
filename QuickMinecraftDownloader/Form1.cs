@@ -1,12 +1,13 @@
+using Optifine.Installer;
 using QuickMinecraftDownloader.Models;
 using QuickMinecraftDownloader.Services;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Xml.Linq;
 //using static System.Net.WebRequestMethods;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
-using Optifine.Installer;
 
 
 namespace QuickMinecraftDownloader
@@ -21,43 +22,63 @@ namespace QuickMinecraftDownloader
             InitializeComponent();
         }
 
+        private Image[] _frames;
+        // 当前显示第几帧
+        private int _currentFrame = 0;
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-                string dbPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "QuickMinecraftDownloader", "memories.json");
-                _db = new JsonRepository<MemoryItem>(dbPath, x => x.Id);
 
-                //查询上一次的文件夹
-                var history = _db.Query(x => x.Name == "LastFolder")
-                         .OrderByDescending(x => x.CreatedAt)
-                         .ToList();
+            string dbPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "QuickMinecraftDownloader", "memories.json");
+            _db = new JsonRepository<MemoryItem>(dbPath, x => x.Id);
 
-                // 去重：同一个路径只保留最近一条
-                history = history
-                    .GroupBy(x => x.Value)
-                    .Select(g => g.First())
-                    .ToList();
+            //查询上一次的文件夹
+            var history = _db.Query(x => x.Name == "LastFolder")
+                     .OrderByDescending(x => x.CreatedAt)
+                     .ToList();
 
-                // 只把存在的文件夹放进下拉框
-                var paths = history
-                    .Where(x => Directory.Exists(x.Value))
-                    .Select(x => x.Value)
-                    .ToList();
+            // 去重：同一个路径只保留最近一条
+            history = history
+                .GroupBy(x => x.Value)
+                .Select(g => g.First())
+                .ToList();
 
-                输出文件夹.DataSource = null;          // 先解绑
-                输出文件夹.DataSource = paths;
+            // 只把存在的文件夹放进下拉框
+            var paths = history
+                .Where(x => Directory.Exists(x.Value))
+                .Select(x => x.Value)
+                .ToList();
 
-                // 默认选中最近的一条
-                if (paths.Count > 0)
-                    输出文件夹.SelectedIndex = 0;
+            输出文件夹.DataSource = null;          // 先解绑
+            输出文件夹.DataSource = paths;
 
-                // 刷新版本列表
-                刷新GameVer_Click(null, null);
+            // 默认选中最近的一条
+            if (paths.Count > 0)
+                输出文件夹.SelectedIndex = 0;
 
-                ResetLoaderRadios();
-            
+            // 刷新版本列表
+            刷新GameVer_Click(null, null);
+
+            ResetLoaderRadios();
+
+            //Animate
+            _frames =
+    [
+        Properties.Resources.堆肥桶_001,
+        Properties.Resources.堆肥桶_002,
+        Properties.Resources.堆肥桶_003,
+        Properties.Resources.堆肥桶_004
+        // 有几张写几张
+    ];
+
+            // 3. 初始状态先隐藏动画
+            //堆肥桶.Visible = false;
+
+
+
+
         }
 
         private void 退出ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -298,6 +319,11 @@ namespace QuickMinecraftDownloader
             return mcDir;
         }
 
+        private void StartAnimate()
+        {
+
+        }
+
         private async void 开始安装_Click(object sender, EventArgs e)
         {
             // ---- 校验（不变）----
@@ -341,6 +367,11 @@ namespace QuickMinecraftDownloader
             Cursor = Cursors.WaitCursor;
             安装进度.Style = ProgressBarStyle.Blocks;
             安装进度.Value = 0;
+
+            //Animate
+            _currentFrame = 0;            // 重置到第一张
+           // 堆肥桶.Image = _frames[0]; // 立刻显示第一张（避免等 200ms 才有画面）
+            timer1.Start();
 
             try
             {
@@ -399,8 +430,8 @@ namespace QuickMinecraftDownloader
             {
                 开始安装.Enabled = true;
                 Cursor = Cursors.Default;
-
-                
+                timer1.Stop();
+                堆肥桶.Image = Properties.Resources.堆肥桶_full;
 
                 SaveLastFolder();
             }
@@ -547,30 +578,30 @@ namespace QuickMinecraftDownloader
             report(100, $"{entry.Id} 下载完成");
         }
 
-       
+
 
         private async Task InstallLoaderAsync(
     string loaderName, string mcVersion, string loaderVersion,
     string mcDir, Action<ProgressBarStyle, int, string> updateUi)
-{
-    switch (loaderName)
-    {
-        case "Forge":
-            await InstallForgeAsync(mcVersion, loaderVersion, mcDir, updateUi);
-            break;
-        case "NeoForge":
-            await InstallNeoForgeAsync(loaderVersion, mcDir, updateUi);
-            break;
-        case "Fabric":
-            await InstallFabricAsync(mcVersion, loaderVersion, mcDir, updateUi);
-            break;
-        case "Optifine":
-            await InstallOptifineAsync(mcVersion, loaderVersion, mcDir, updateUi);
-            break;
-        default:
-            throw new ArgumentException($"未知加载器：{loaderName}");
-    }
-}
+        {
+            switch (loaderName)
+            {
+                case "Forge":
+                    await InstallForgeAsync(mcVersion, loaderVersion, mcDir, updateUi);
+                    break;
+                case "NeoForge":
+                    await InstallNeoForgeAsync(loaderVersion, mcDir, updateUi);
+                    break;
+                case "Fabric":
+                    await InstallFabricAsync(mcVersion, loaderVersion, mcDir, updateUi);
+                    break;
+                case "Optifine":
+                    await InstallOptifineAsync(mcVersion, loaderVersion, mcDir, updateUi);
+                    break;
+                default:
+                    throw new ArgumentException($"未知加载器：{loaderName}");
+            }
+        }
 
         private async Task InstallForgeAsync(
     string mcVersion, string forgeVersion, string mcDir,
@@ -766,27 +797,27 @@ namespace QuickMinecraftDownloader
         }
 
         private string FindJavaExe()
-    {
-        // 简单探测：JAVA_HOME → PATH
-        string javaHome = Environment.GetEnvironmentVariable("JAVA_HOME");
-        if (!string.IsNullOrEmpty(javaHome))
         {
-            string path = Path.Combine(javaHome, "bin", "java.exe");
-            if (File.Exists(path)) return path;
-        }
-
-        string pathEnv = Environment.GetEnvironmentVariable("PATH");
-        if (!string.IsNullOrEmpty(pathEnv))
-        {
-            foreach (var dir in pathEnv.Split(Path.PathSeparator))
+            // 简单探测：JAVA_HOME → PATH
+            string javaHome = Environment.GetEnvironmentVariable("JAVA_HOME");
+            if (!string.IsNullOrEmpty(javaHome))
             {
-                string candidate = Path.Combine(dir, "java.exe");
-                if (File.Exists(candidate)) return candidate;
+                string path = Path.Combine(javaHome, "bin", "java.exe");
+                if (File.Exists(path)) return path;
             }
-        }
 
-        return null;
-    }
+            string pathEnv = Environment.GetEnvironmentVariable("PATH");
+            if (!string.IsNullOrEmpty(pathEnv))
+            {
+                foreach (var dir in pathEnv.Split(Path.PathSeparator))
+                {
+                    string candidate = Path.Combine(dir, "java.exe");
+                    if (File.Exists(candidate)) return candidate;
+                }
+            }
+
+            return null;
+        }
 
         private async Task DownloadFileAsync(string url, string savePath, Action<int> progress = null)
         {
@@ -944,7 +975,7 @@ namespace QuickMinecraftDownloader
 
         private void Forge_CheckedChanged(object sender, EventArgs e)
         {
-            
+
             RadioButton rb = sender as RadioButton;
             if (rb == null || !rb.Checked) return;   // 只处理“被选中”那次
             FillLoaderVersions();
@@ -979,14 +1010,29 @@ namespace QuickMinecraftDownloader
 
         private void 无加载器_CheckedChanged(object sender, EventArgs e)
         {
-            
+
             RadioButton rb = sender as RadioButton;
             if (rb == null || !rb.Checked) return;   // 只处理“被选中”那次
             FillLoaderVersions();
-        
-    }
-        
 
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (_frames == null || _frames.Length == 0) return;
+
+            // 2. 如果超出了图片数量，就回到第 0 帧（实现循环播放）
+            if (_currentFrame >= _frames.Length)
+            {
+                _currentFrame = 0;
+            }
+
+            // 3. 把对应的图片给 PictureBox
+            堆肥桶.Image = _frames[_currentFrame];
+            // 1. 索引加 1
+
+            _currentFrame +=1;
+        }
     }
 }
 

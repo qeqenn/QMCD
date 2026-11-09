@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             menuStrip1 = new MenuStrip();
             文件ToolStripMenuItem = new ToolStripMenuItem();
@@ -62,9 +63,12 @@
             folderBrowserDialog1 = new FolderBrowserDialog();
             安装进度 = new ProgressBar();
             加载器版本 = new ComboBox();
+            堆肥桶 = new PictureBox();
+            timer1 = new System.Windows.Forms.Timer(components);
             menuStrip1.SuspendLayout();
             GameVerPanel.SuspendLayout();
             ModLoaderPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)堆肥桶).BeginInit();
             SuspendLayout();
             // 
             // menuStrip1
@@ -130,14 +134,14 @@
             // 
             java运行时ToolStripMenuItem.Enabled = false;
             java运行时ToolStripMenuItem.Name = "java运行时ToolStripMenuItem";
-            java运行时ToolStripMenuItem.Size = new Size(180, 22);
+            java运行时ToolStripMenuItem.Size = new Size(137, 22);
             java运行时ToolStripMenuItem.Text = "Java运行时";
             // 
             // 整合包ToolStripMenuItem
             // 
             整合包ToolStripMenuItem.Enabled = false;
             整合包ToolStripMenuItem.Name = "整合包ToolStripMenuItem";
-            整合包ToolStripMenuItem.Size = new Size(180, 22);
+            整合包ToolStripMenuItem.Size = new Size(137, 22);
             整合包ToolStripMenuItem.Text = "整合包";
             // 
             // label1
@@ -380,11 +384,26 @@
             加载器版本.Size = new Size(162, 25);
             加载器版本.TabIndex = 15;
             // 
+            // 堆肥桶
+            // 
+            堆肥桶.Image = Properties.Resources.堆肥桶_empty;
+            堆肥桶.Location = new Point(12, 167);
+            堆肥桶.Name = "堆肥桶";
+            堆肥桶.Size = new Size(150, 150);
+            堆肥桶.TabIndex = 16;
+            堆肥桶.TabStop = false;
+            // 
+            // timer1
+            // 
+            timer1.Interval = 600;
+            timer1.Tick += timer1_Tick;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(堆肥桶);
             Controls.Add(加载器版本);
             Controls.Add(安装进度);
             Controls.Add(开始安装);
@@ -410,6 +429,7 @@
             GameVerPanel.PerformLayout();
             ModLoaderPanel.ResumeLayout(false);
             ModLoaderPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)堆肥桶).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -449,5 +469,7 @@
         private ToolStripMenuItem 安装ToolStripMenuItem;
         private ToolStripMenuItem java运行时ToolStripMenuItem;
         private ToolStripMenuItem 整合包ToolStripMenuItem;
+        private PictureBox 堆肥桶;
+        private System.Windows.Forms.Timer timer1;
     }
 }
