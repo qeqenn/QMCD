@@ -1,0 +1,54 @@
+name: Build and Publish Multi-Arch
+
+on:
+  push:
+    branches: [ "master" ] # 如果你的主分支叫 main，请修改这里
+  workflow_dispatch:       # 允许在网页端手动点击运行
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    # 矩阵策略：定义需要编译的各个架构
+    strategy:
+      matrix:
+        include:
+          - arch: x64
+            runtime: win-x64
+            self_contained: true
+          - arch: x86
+            runtime: win-x86
+            self_contained: true
+          - arch: arm64
+            runtime: win-arm64
+            self_contained: true
+          - arch: AnyCPU
+            runtime: ""
+            self_contained: false
+
+    steps:
+    - name: 1. 拉取代码
+      uses: actions/checkout@v4
+
+    - name: 2. 安装 .NET 8 环境
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: 3. 还原依赖
+      run: dotnet restore
+
+    - name: 4. 编译并发布
+      shell: pwsh
+      run: |
+        if ("${{ matrix.runtime }}" -ne "") {
+            dotnet publish QuickMinecraftDownloader/QuickMinecraftDownloader.csproj -c Release -r ${{ matrix.runtime }} --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
+        } else {
+            dotnet publish QuickMinecraftDownloader/QuickMinecraftDownloader.csproj -c Release --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
+        }
+
+    - name: 5. 上传产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: QuickMinecraftDownloader-${{ matrix.arch }}
+        path: ./publish/${{ matrix.arch }}/
