@@ -40,12 +40,11 @@ jobs:
 
     - name: 4. 编译并发布
       shell: pwsh
-      # 💡 逻辑：如果有 runtime 参数，就加上 -r 参数；如果没有，就不加，交给 .NET 自动生成 AnyCPU
       run: |
         if ("${{ matrix.runtime }}" -ne "") {
-            dotnet publish -c Release -r ${{ matrix.runtime }} --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
+            dotnet publish QuickMinecraftDownloader/QuickMinecraftDownloader.csproj -c Release -r ${{ matrix.runtime }} --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
         } else {
-            dotnet publish -c Release --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
+            dotnet publish QuickMinecraftDownloader/QuickMinecraftDownloader.csproj -c Release --self-contained ${{ matrix.self_contained }} -p:PublishSingleFile=true -o ./publish/${{ matrix.arch }}
         }
 
     - name: 5. 上传产物
